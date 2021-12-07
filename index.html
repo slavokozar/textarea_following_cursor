@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<style type="text/css">
+		body, textarea{
+			font-family: arial;
+		}
+
+		main{
+			position: relative;
+		}
+
+		span.pointer{
+			display: block;
+			width: 5px;
+			height: 5px;
+			background: red;
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+
+		span.mock {
+			position: absolute;
+			top:  0;
+			left:  0;
+			/*left:  100px;*/
+			visibility: hidden;
+			display: inline-block;
+		}
+		
+
+	</style>
+</head>
+<body>
+	<h1>Textarea test</h1>
+	<main>
+		<textarea rows="10" cols="10">Joujou asd asd asd asd asd asd
+sa</textarea>
+		<span class="pointer"></span>
+		<span class="mock"></span>
+	</main>
+	<div>Tu je dalsi obsah</div>
+
+<script type="text/javascript">
+	const textarea = document.querySelector('textarea');
+	const pointer = document.querySelector('span.pointer');
+	const mock = document.querySelector('span.mock');
+
+	// initialize so the mock looks same way as real textarea
+	const taStyles = getComputedStyle(textarea);
+
+	mock.style.border = '1px solid black';
+	mock.style.display = 'inline-block';
+	mock.style.maxWidth = taStyles['width'];
+	mock.style.wordWrap = taStyles['word-wrap']
+	
+	mock.style.paddingTop = taStyles['padding-top'];
+	mock.style.paddingBottom = taStyles['padding-bottom'];
+	mock.style.paddingLeft = taStyles['padding-left'];
+	mock.style.paddingRight = taStyles['padding-right'];
+
+	mock.style.fontFamily = taStyles['font-family'];
+	mock.style.fontSize = taStyles['font-size'];
+	mock.style.fontStyle = taStyles['font-style'];
+	mock.style.fontWeight = taStyles['font-weight'];
+
+	mock.style.lineHeight = taStyles['line-height'];
+	mock.style.color = taStyles['color'];
+
+	// ta.addEventListener('keydown', (e) => {
+	// 	// console.log(e);
+
+	// 	const {key} = e;
+
+	// 	const {selectionStart, selectionEnd} = ta;
+
+	// 	const cursor = getCursorPos(ta).selectionStart;
+
+	// 	const textBeforeCursor = e.target.value.substr(0, cursor);
+
+	// 	const lines = textBeforeCursor.split('\n')
+	// 	const line = lines.length;
+
+	// 	const cursorInLine = lines.reduce((a,  line) => a + line.length, 0);
+
+	// 	console.log({cursor, line, cursorInLine});
+
+	// 	// console.log({cursor, selectionStart, key})
+
+
+	// 	// code: "KeyK"
+	// 	// key: "k"
+	// })
+
+	
+	
+	function highlightCursor(cursorOffset){
+		let cursor = textarea.value.length - cursorOffset;	
+
+		const {value} = textarea;
+		// get all lines before cursor
+		const linesBeforeCursor = value.substring(0, cursor).split('\n');
+
+		console.log({linesBeforeCursor});
+
+		
+
+		let tmpCursor = cursor;
+		while(!(/\s/.test(value[tmpCursor]) || /\n/.test(value[tmpCursor])) && tmpCursor < value.length) {
+			tmpCursor++;
+		}
+
+		const cursorShift = tmpCursor - cursor;
+
+		console.log(cursorShift);
+
+
+		const linesBeforeTmpCursor = value.substring(0, tmpCursor).split('\n');
+
+		const linesBeforeCursorCount = linesBeforeCursor.length - 1;
+
+		const valueOfLinesBeforeCursor = linesBeforeCursor.filter((line, i) => (i < linesBeforeCursorCount)).join('\n');
+
+		const lineWithCursor = linesBeforeCursor[linesBeforeCursor.length - 1];
+		const fullLineWithCursor = linesBeforeTmpCursor[linesBeforeTmpCursor.length - 1];
+		
+
+
+		// set pointer position
+		// console.log({lineWithCursor, fullLineWithCursor});
+
+		// return;
+
+		mock.innerHTML = fullLineWithCursor;
+		let lineWithCursorHeight = mock.offsetHeight;
+
+		
+		let wrappedLastLineLength = 0
+		let wrappedLineLength = 1;
+		let wrappedLines = 0
+
+		let tmpLineWithCursor = fullLineWithCursor;
+		let tmpLineWithCursorHeight = lineWithCursorHeight;
+
+		console.log({fullLineWithCursor});
+		// return;
+
+		let lastWhiteSpace = 0;
+
+		do{
+			console.log('testujem medzeru', fullLineWithCursor[fullLineWithCursor.length - wrappedLineLength]);
+			if(/\s/.test(fullLineWithCursor[fullLineWithCursor.length - wrappedLineLength])){
+				lastWhiteSpace = wrappedLineLength;
+			}
+			console.log({wrappedLineLength, lastWhiteSpace});
+			
+			wrappedLineLength++;
+
+
+			tmpLineWithCursor = fullLineWithCursor.substring(0, fullLineWithCursor.length - wrappedLineLength)
+
+			mock.innerHTML = tmpLineWithCursor;
+			tmpLineWithCursorHeight = mock.offsetHeight;
+
+			// console.log(lineWithCursorHeight, tmpLineWithCursorHeight, lineWithCursorHeight > tmpLineWithCursorHeight);
+			if(lineWithCursorHeight > tmpLineWithCursorHeight){
+				// console.log('wrap', tmpLineWithCursor, tmpLineWithCursorHeight);
+					
+
+				const restOfWord = fullLineWithCursor.substr(fullLineWithCursor.length - wrappedLineLength, wrappedLineLength - lastWhiteSpace);
+
+				console.log('idem pridavat zvysok slova', '`' + restOfWord + '`');
+				
+
+
+				//potrebujem pridat tolko whitespacov, kolko je v poslednom slove
+				mock.innerHTML = tmpLineWithCursor + restOfWord;
+				const tmpLineWithCursorWithSpaceHeight = mock.offsetHeight;
+				console.log(tmpLineWithCursorWithSpaceHeight,tmpLineWithCursorHeight)
+
+		
+				if(tmpLineWithCursorWithSpaceHeight > tmpLineWithCursorHeight){
+					console.log('este by som nemal wrappovat');					
+
+					// debugger;
+				}else{
+					console.log('wrapujem');
+					console.log({wrappedLineLength});
+
+					// debugger;
+					
+					if(wrappedLines === 0){
+						wrappedLastLineLength = wrappedLineLength - restOfWord.length;
+					}
+					wrappedLines++;
+					lineWithCursorHeight = tmpLineWithCursorHeight;
+				}
+
+			}
+
+			// debugger;
+		}while(tmpLineWithCursor.length > 0);
+
+
+
+
+		// console.log({
+		// 	lastLine: 
+		// 	lineWithCursor.substr(0, lineWithCursor.length - (wrappedLastLineLength + 1))
+		// });
+
+
+		console.log('jo', wrappedLastLineLength, wrappedLines);
+
+
+
+
+		if(wrappedLines === 0){
+			// nemam viac riadkov
+			console.log('nemam viac riadkov');
+			mock.innerHTML = valueOfLinesBeforeCursor;
+			pointer.style.top = (mock.offsetHeight - parseInt(taStyles['padding-bottom'])) + 'px';
+
+			console.log(lineWithCursor);
+			console.log(mock.offsetWidth);
+			mock.innerHTML = lineWithCursor;
+			pointer.style.left = (mock.offsetWidth - parseInt(taStyles['padding-right'])) + 'px';
+		}else{
+			// mam viac riadkov
+
+			console.log('mam viac riadkov');
+
+			
+			mock.innerHTML = lineWithCursor.substr(0, lineWithCursor.length - (wrappedLastLineLength + 1));
+			pointer.style.top = (mock.offsetHeight - parseInt(taStyles['padding-bottom'])) + 'px';
+
+			// // mock.innerHTML = 
+
+			// console.log(wrappedLastLineLength);
+			// console.log()
+
+			// // console.log(lineWithCursor);
+			// // console.log(mock.offsetWidth);
+			console.log({cursorShift, wrappedLastLineLength});
+
+
+
+			mock.innerHTML = lineWithCursor.substr(-1 * (wrappedLastLineLength - cursorShift));
+			pointer.style.left = (mock.offsetWidth - parseInt(taStyles['padding-right'])) + 'px';
+
+		}
+
+
+		
+
+
+	}
+
+
+	let offset = 0; 
+	highlightCursor(offset);
+	setInterval(()=> {
+		highlightCursor(++offset);
+	},1000)
+	
+	
+	
+
+	
+
+	function getCursorPos(input) {
+	    if ("selectionStart" in input && document.activeElement == input) {
+	        return {
+	            start: input.selectionStart,
+	            end: input.selectionEnd
+	        };
+	    }
+	    else if (input.createTextRange) {
+	        var sel = document.selection.createRange();
+	        if (sel.parentElement() === input) {
+	            var rng = input.createTextRange();
+	            rng.moveToBookmark(sel.getBookmark());
+	            for (var len = 0;
+	                     rng.compareEndPoints("EndToStart", rng) > 0;
+	                     rng.moveEnd("character", -1)) {
+	                len++;
+	            }
+	            rng.setEndPoint("StartToStart", input.createTextRange());
+	            for (var pos = { start: 0, end: len };
+	                     rng.compareEndPoints("EndToStart", rng) > 0;
+	                     rng.moveEnd("character", -1)) {
+	                pos.start++;
+	                pos.end++;
+	            }
+	            return pos;
+	        }
+	    }
+	    return -1;
+	}
+   
+
+
+</script>
+</body>
+</html>	
