@@ -86,13 +86,15 @@
 		const cursor = getCursor(e.target);
 			
 		console.log('keyup', e);
-		console.log('keyup2', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
+		
 
 		if(e.target.value[cursor - 1] === '@'){
 			tagging = true;
 			
 			tagCursor = cursor - 1;
 			token = ''
+
+			console.log('keyup3', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
 
 			showPopup(tagCursor);
 		}else if(tagCursor !== null){
