@@ -82,9 +82,9 @@
 
 	textarea.addEventListener('keyup', (e) => {
 		const cursor = getCursor(e.target);
+		const firstSpaceAfterCursor = tagCursor ? e.target.value.indexOf(' ', tagCursor) : null
 
-		console.log('keyup global', {tagging, cursor});
-		// 65
+		console.log('keyup', {cursor, tagCursor, char: e.target.value[tagCursor], firstSpaceAfterCursor, key: e.key});
 
 		if(e.key === '@'){
 			tagging = true;
@@ -93,40 +93,36 @@
 			token = ''
 
 			showPopup(tagCursor);
-
-			console.log('napisali sme zavinac');
-		}else{
-			const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor)
-
-			console.log('keyup', {cursor, tagCursor, char: e.target.value[tagCursor], firstSpaceAfterCursor});
+		}else if(tagCursor !== null){
+			
 
 			if(	tagging && (firstSpaceAfterCursor >= 0 && cursor >= firstSpaceAfterCursor) || cursor < tagCursor){
 				tagging = false;
 				hidePopup();	
-				return;
 			}
 
-			if(!tagging && tagCursor !== null && cursor >= tagCursor && (firstSpaceAfterCursor < 0 || (firstSpaceAfterCursor >= 0 && cursor <= firstSpaceAfterCursor))){
+			if(!tagging && cursor >= tagCursor && (firstSpaceAfterCursor < 0 || (firstSpaceAfterCursor >= 0 && cursor <= firstSpaceAfterCursor))){
 				tagging = true;
 				showPopup(tagCursor);
 			}
 
-			if(tagging && e.target.value[tagCursor] !== '@'){
-
+			if( e.target.value[tagCursor] !== '@'){
+				console.log('poloha zavinaca sa zmenila');
+				console.log(e.target.value[tagCursor - 2], e.target.value[tagCursor - 1], e.target.value[tagCursor], e.target.value[tagCursor + 1], e.target.value[tagCursor + 2]);
 				if(tagCursor > 0 && e.target.value[tagCursor - 1] === '@'){
+					console.log('nieco sme pred zavinacom zmazali')
 					tagCursor--;
-					tagging = true;
-					showPopup(tagCursor);
-				}else if(tagCursor <= e.target.value.length - 1 && e.target.value[tagCursor + 1]){
+					// showPopup(tagCursor);
+				}else if(tagCursor <= e.target.value.length - 1 && e.target.value[tagCursor + 1] === '@'){
+					console.log('nieco sme pred zavinacom pridali')
 					tagCursor++;	
-					tagging = true;
-					showPopup(tagCursor);
-				}else if(tagging) {
+					// tagging = true;
+					// showPopup(tagCursor);
+				}else {
+					tagCursor = null;
 					tagging = false;
 					hidePopup();
-					return;	
 				}
-
 			}
 
 			if(firstSpaceAfterCursor >= 0){
@@ -135,26 +131,25 @@
 				token = e.target.value.substr(tagCursor + 1);	
 			}
 		}
+
+		console.log('after', {cursor, tagCursor, char: e.target.value[tagCursor], firstSpaceAfterCursor, key: e.key});
 	})
 
 	textarea.addEventListener('click', (e) => {
 		if(tagCursor === null) return;
 
 		const cursor = getCursor(e.target);
-
 		const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
 
-		console.log({tagCursor, cursor, firstSpaceAfterCursor});
+		console.log('click', {tagCursor, cursor, firstSpaceAfterCursor});
 
 		if (cursor < tagCursor || (firstSpaceAfterCursor >= 0 && cursor > firstSpaceAfterCursor)){
 			hidePopup();
+			tagging = true;
 		} else if (cursor > tagCursor && (firstSpaceAfterCursor < 0 || cursor < firstSpaceAfterCursor ) ){
+			tagging = false;
 			showPopup(tagCursor);
 		}
-
-
-		console.log({tagCursor, cursor});		
-
 	})
 
 	function showPopup(cursor){
