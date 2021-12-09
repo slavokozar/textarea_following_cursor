@@ -41,7 +41,7 @@
 	<div>Tu je dalsi obsah</div>
 
 <script type="text/javascript">
-	console.log('verzia 3');
+	console.log('verzia 4');
 	const textarea = document.querySelector('textarea');
 	const pointer = document.querySelector('span.pointer');
 	const mock = document.querySelector('span.mock');
@@ -98,7 +98,7 @@
 
 
 			
-			if(alt6 && e.key == '4' &&  e.altKey || e.key == '@' || textarea.value[cursor - 1] === '@'){
+			if(alt6 && e.key == '4' &&  e.altKey|| e.key == '@' || textarea.value[cursor - 1] === '@'){
 				tagging = true;
 				
 				tagCursor = cursor - 1;
@@ -168,7 +168,7 @@
 		if(tagCursor === null) return;
 
 		const cursor = getCursor(e.target);
-		const firstSpaceAfterCursor = .value.indexOf(' ', tagCursor);
+		const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
 
 		console.log('click', {tagCursor, cursor, firstSpaceAfterCursor});
 
