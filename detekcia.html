@@ -41,6 +41,7 @@
 	<div>Tu je dalsi obsah</div>
 
 <script type="text/javascript">
+	console.log('verzia 2');
 	const textarea = document.querySelector('textarea');
 	const pointer = document.querySelector('span.pointer');
 	const mock = document.querySelector('span.mock');
@@ -82,12 +83,17 @@
 
 	let lastLength = null;
 
+
+
 	textarea.addEventListener('keyup', (e) => {
-		const cursor = getCursor(e.target);
+
+		setTimeout(() => {
+			const cursor = getCursor(e.target);
 			
 		console.log('keyup', e);
 		
 		console.log('keyup2', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
+
 
 		if(e.key === '@' || e.target.value[cursor - 1] === '@'){
 			tagging = true;
@@ -150,6 +156,8 @@
 		console.log('after', {cursor, tagCursor, char: e.target.value[tagCursor], key: e.key});
 
 		lastLength = e.target.value.length;
+		}, 50)
+		
 	})
 
 	textarea.addEventListener('click', (e) => {
