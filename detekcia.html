@@ -85,9 +85,9 @@
 	textarea.addEventListener('keyup', (e) => {
 		const cursor = getCursor(e.target);
 			
-		console.log('keyup', {cursor, tagCursor, char: e.target.value[tagCursor], key: e.key});
+		console.log('keyup', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
 
-		if(e.key === '@'){
+		if(e.target.value[cursor - 1] === '@'){
 			tagging = true;
 			
 			tagCursor = cursor - 1;
