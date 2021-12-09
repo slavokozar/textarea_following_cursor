@@ -87,8 +87,9 @@
 			
 		console.log('keyup', e);
 		
+		console.log('keyup2', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
 
-		if(e.target.value[cursor - 1] === '@'){
+		if(e.key === '@' || e.target.value[cursor - 1] === '@'){
 			tagging = true;
 			
 			tagCursor = cursor - 1;
