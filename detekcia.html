@@ -41,7 +41,7 @@
 	<div>Tu je dalsi obsah</div>
 
 <script type="text/javascript">
-	console.log('verzia 2');
+	console.log('verzia 3');
 	const textarea = document.querySelector('textarea');
 	const pointer = document.querySelector('span.pointer');
 	const mock = document.querySelector('span.mock');
@@ -90,73 +90,73 @@
 		setTimeout(() => {
 			const cursor = getCursor(e.target);
 			
-		console.log('keyup', e);
-		
-		console.log('keyup2', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
-
-
-		if(e.key === '@' || e.target.value[cursor - 1] === '@'){
-			tagging = true;
+			console.log('keyup', e);
 			
-			tagCursor = cursor - 1;
-			token = ''
-
-			console.log('keyup3', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
-
-			showPopup(tagCursor);
-		}else if(tagCursor !== null){
-
-			if( e.target.value[tagCursor] !== '@'){
-				console.log('poloha zavinaca sa zmenila');
-				console.log([e.target.value[tagCursor - 2], e.target.value[tagCursor - 1], e.target.value[tagCursor], e.target.value[tagCursor + 1], e.target.value[tagCursor + 2]].join());
+			console.log('keyup2', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
 
 
-				const offset = e.target.value.length - lastLength;
+			if(e.key === '@' || e.target.value[cursor - 1] === '@'){
+				tagging = true;
+				
+				tagCursor = cursor - 1;
+				token = ''
 
-				console.log({offset});
-				if(tagCursor > 0 && e.target.value[tagCursor - offset] === '@'){
-					console.log('nieco sme pred zavinacom zmazali')
-					tagCursor-= offset;
-					if(tagging) showPopup(tagCursor);
-					// showPopup(tagCursor);
+				console.log('keyup3', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
 
-				}else if(tagCursor <= e.target.value.length - offset && e.target.value[tagCursor + offset] === '@'){
-					console.log('nieco sme pred zavinacom pridali')
-					tagCursor+= offset;	
-					if(tagging) showPopup(tagCursor);
-					// tagging = true;
-					// showPopup(tagCursor);
-				}else {
-					tagCursor = null;
+				showPopup(tagCursor);
+			}else if(tagCursor !== null){
+
+				if( e.target.value[tagCursor] !== '@'){
+					console.log('poloha zavinaca sa zmenila');
+					console.log([e.target.value[tagCursor - 2], e.target.value[tagCursor - 1], e.target.value[tagCursor], e.target.value[tagCursor + 1], e.target.value[tagCursor + 2]].join());
+
+
+					const offset = e.target.value.length - lastLength;
+
+					console.log({offset});
+					if(tagCursor > 0 && e.target.value[tagCursor - offset] === '@'){
+						console.log('nieco sme pred zavinacom zmazali')
+						tagCursor-= offset;
+						if(tagging) showPopup(tagCursor);
+						// showPopup(tagCursor);
+
+					}else if(tagCursor <= e.target.value.length - offset && e.target.value[tagCursor + offset] === '@'){
+						console.log('nieco sme pred zavinacom pridali')
+						tagCursor+= offset;	
+						if(tagging) showPopup(tagCursor);
+						// tagging = true;
+						// showPopup(tagCursor);
+					}else {
+						tagCursor = null;
+						tagging = false;
+						hidePopup();
+					}
+				}
+
+				const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
+
+				if(	tagging && (firstSpaceAfterCursor >= 0 && cursor >= firstSpaceAfterCursor) || cursor <= tagCursor){
 					tagging = false;
-					hidePopup();
+					hidePopup();	
+				}
+
+				if(!tagging && cursor > tagCursor && (firstSpaceAfterCursor < 0 || (firstSpaceAfterCursor >= 0 && cursor <= firstSpaceAfterCursor))){
+					tagging = true;
+					showPopup(tagCursor);
+				}
+
+				if(firstSpaceAfterCursor >= 0){
+					token = e.target.value.substr(tagCursor + 1, firstSpaceAfterCursor - tagCursor);	
+				}else{
+					token = e.target.value.substr(tagCursor + 1);	
 				}
 			}
 
-			const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
 
-			if(	tagging && (firstSpaceAfterCursor >= 0 && cursor >= firstSpaceAfterCursor) || cursor <= tagCursor){
-				tagging = false;
-				hidePopup();	
-			}
+			console.log('after', {cursor, tagCursor, char: e.target.value[tagCursor], key: e.key});
 
-			if(!tagging && cursor > tagCursor && (firstSpaceAfterCursor < 0 || (firstSpaceAfterCursor >= 0 && cursor <= firstSpaceAfterCursor))){
-				tagging = true;
-				showPopup(tagCursor);
-			}
-
-			if(firstSpaceAfterCursor >= 0){
-				token = e.target.value.substr(tagCursor + 1, firstSpaceAfterCursor - tagCursor);	
-			}else{
-				token = e.target.value.substr(tagCursor + 1);	
-			}
-		}
-
-
-		console.log('after', {cursor, tagCursor, char: e.target.value[tagCursor], key: e.key});
-
-		lastLength = e.target.value.length;
-		}, 50)
+			lastLength = e.target.value.length;
+		}, 100)
 		
 	})
 
