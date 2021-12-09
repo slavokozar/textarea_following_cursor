@@ -83,11 +83,12 @@
 
 	let lastLength = null;
 
-
+	let alt6 = false;	
 
 	textarea.addEventListener('keyup', (e) => {
 
-		setTimeout(() => {
+
+	
 			const cursor = getCursor(e.target);
 			
 			console.log('keyup', e);
@@ -95,7 +96,9 @@
 			console.log('keyup2', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
 
 
-			if(e.key === '@' || e.target.value[cursor - 1] === '@'){
+
+			
+			if(alt6 && e.key == '4' &&  e.altKey || e.key == '@' || textarea.value[cursor - 1] === '@'){
 				tagging = true;
 				
 				tagCursor = cursor - 1;
@@ -156,7 +159,8 @@
 			console.log('after', {cursor, tagCursor, char: e.target.value[tagCursor], key: e.key});
 
 			lastLength = e.target.value.length;
-		}, 100)
+	
+			alt6 = e.key == '6' &&  e.altKey;
 		
 	})
 
@@ -164,7 +168,7 @@
 		if(tagCursor === null) return;
 
 		const cursor = getCursor(e.target);
-		const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
+		const firstSpaceAfterCursor = .value.indexOf(' ', tagCursor);
 
 		console.log('click', {tagCursor, cursor, firstSpaceAfterCursor});
 
