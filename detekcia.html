@@ -13,21 +13,18 @@
 		}
 
 		span.pointer{
-			display: block;
-			width: 5px;
-			height: 5px;
+			display: none;
+			width: 20px;
+			height: 20px;
 			background: red;
 			position: absolute;
-			left: 0;
-			top: 0;
 		}
 
 		span.mock {
 			position: absolute;
 			top:  0;
 			left:  0;
-			left:  250px;
-			/*visibility: hidden;*/
+			visibility: hidden;
 			display: inline-block;
 		}
 		
@@ -37,8 +34,7 @@
 <body>
 	<h1>Textarea test</h1>
 	<main>
-		<textarea rows="10" cols="30">Joujou asd asd asd asd asd asd
-sa</textarea>
+		<textarea rows="10" cols="60">Joujou asd asd asd asd asd asd</textarea>
 		<span class="pointer"></span>
 		<span class="mock"></span>
 	</main>
@@ -48,6 +44,7 @@ sa</textarea>
 	const textarea = document.querySelector('textarea');
 	const pointer = document.querySelector('span.pointer');
 	const mock = document.querySelector('span.mock');
+
 
 	// initialize so the mock looks same way as real textarea
 	const taStyles = getComputedStyle(textarea);
@@ -71,35 +68,111 @@ sa</textarea>
 	mock.style.color = taStyles['color'];
 	
 
-	let zavinac = false;
-	let zavinacCursor = null;
+	let tagging = false;
+	let tagCursor = null;
 	let token = null;
 
+
+	/* 
+		ked napisem zavinac - otvori sa popup
+		ked kliknem mimo zavinaca - zavrie sa popup
+		ked sipkami odidem od zavinaca - zavrie sa popup
+		ked sa sipkami vratim ku zavinaci - otvori sa popup
+	*/
+
 	textarea.addEventListener('keyup', (e) => {
+		const cursor = getCursor(e.target);
+
+		console.log('keyup global', {tagging, cursor});
+		// 65
+
 		if(e.key === '@'){
-			zavinac = true;
-			zavinacCursor = getCursor(e.target);
+			tagging = true;
+			
+			tagCursor = cursor - 1;
 			token = ''
 
-			const coords = getCursorCoords(zavinacCursor);
+			showPopup(tagCursor);
 
-			pointer.style.left = coords.left + 'px';
-			pointer.style.top = coords.top + 'px';
-
-			console.log(coords);
 			console.log('napisali sme zavinac');
-		}else if(zavinac){
-			// if(e.keyCode <)
-			token = e.target.value.substr(zavinacCursor);
+		}else{
+			const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor)
 
+			console.log('keyup', {cursor, tagCursor, char: e.target.value[tagCursor], firstSpaceAfterCursor});
 
-			console.log({token});
+			if(	tagging && (firstSpaceAfterCursor >= 0 && cursor >= firstSpaceAfterCursor) || cursor < tagCursor){
+				tagging = false;
+				hidePopup();	
+				return;
+			}
+
+			if(!tagging && tagCursor !== null && cursor >= tagCursor && (firstSpaceAfterCursor < 0 || (firstSpaceAfterCursor >= 0 && cursor <= firstSpaceAfterCursor))){
+				tagging = true;
+				showPopup(tagCursor);
+			}
+
+			if(tagging && e.target.value[tagCursor] !== '@'){
+
+				if(tagCursor > 0 && e.target.value[tagCursor - 1] === '@'){
+					tagCursor--;
+					tagging = true;
+					showPopup(tagCursor);
+				}else if(tagCursor <= e.target.value.length - 1 && e.target.value[tagCursor + 1]){
+					tagCursor++;	
+					tagging = true;
+					showPopup(tagCursor);
+				}else if(tagging) {
+					tagging = false;
+					hidePopup();
+					return;	
+				}
+
+			}
+
+			if(firstSpaceAfterCursor >= 0){
+				token = e.target.value.substr(tagCursor + 1, firstSpaceAfterCursor - tagCursor);	
+			}else{
+				token = e.target.value.substr(tagCursor + 1);	
+			}
 		}
 	})
+
+	textarea.addEventListener('click', (e) => {
+		if(tagCursor === null) return;
+
+		const cursor = getCursor(e.target);
+
+		const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
+
+		console.log({tagCursor, cursor, firstSpaceAfterCursor});
+
+		if (cursor < tagCursor || (firstSpaceAfterCursor >= 0 && cursor > firstSpaceAfterCursor)){
+			hidePopup();
+		} else if (cursor > tagCursor && (firstSpaceAfterCursor < 0 || cursor < firstSpaceAfterCursor ) ){
+			showPopup(tagCursor);
+		}
+
+
+		console.log({tagCursor, cursor});		
+
+	})
+
+	function showPopup(cursor){
+		const coords = getCursorCoords(cursor);
+
+		pointer.style.display = 'block';
+		pointer.style.left = coords.left + 'px';
+		pointer.style.top = (coords.top - 20) + 'px';
+	}
+
+	function hidePopup(){
+		pointer.style.display = 'none';
+	}
 
 
 	function getCursor(input){
 		const cursor = getCursorPos(input);
+
 		if(cursor.start) return cursor.start;
 
 		else return cursor;
@@ -140,9 +213,6 @@ sa</textarea>
 		const {value} = textarea;
 		// get all lines before cursor
 		const linesBeforeCursor = value.substring(0, cursor).split('\n');
-
-		console.log({linesBeforeCursor});
-
 		
 
 		let tmpCursor = cursor;
@@ -152,14 +222,16 @@ sa</textarea>
 
 		const cursorShift = tmpCursor - cursor;
 
-		console.log(cursorShift);
+		//console.log(cursorShift);
 
 
 		const linesBeforeTmpCursor = value.substring(0, tmpCursor).split('\n');
 
 		const linesBeforeCursorCount = linesBeforeCursor.length - 1;
 
-		const valueOfLinesBeforeCursor = linesBeforeCursor.filter((line, i) => (i < linesBeforeCursorCount)).join("<br/>") + '<br/>';
+		const filteredLinesBeforeCursor = linesBeforeCursor.filter((line, i) => (i < linesBeforeCursorCount))
+
+		const valueOfLinesBeforeCursor = filteredLinesBeforeCursor.length > 1 ? filteredLinesBeforeCursor.join("<br/>") + '<br/>' : filteredLinesBeforeCursor.join("<br/>");
 
 		const lineWithCursor = linesBeforeCursor[linesBeforeCursor.length - 1];
 		const fullLineWithCursor = linesBeforeTmpCursor[linesBeforeTmpCursor.length - 1];
@@ -182,17 +254,17 @@ sa</textarea>
 		let tmpLineWithCursor = fullLineWithCursor;
 		let tmpLineWithCursorHeight = lineWithCursorHeight;
 
-		console.log({fullLineWithCursor});
+		//console.log({fullLineWithCursor});
 		// return;
 
 		let lastWhiteSpace = 0;
 
 		do{
-			console.log('testujem medzeru', fullLineWithCursor[fullLineWithCursor.length - wrappedLineLength]);
+			//console.log('testujem medzeru', fullLineWithCursor[fullLineWithCursor.length - wrappedLineLength]);
 			if(/\s/.test(fullLineWithCursor[fullLineWithCursor.length - wrappedLineLength])){
 				lastWhiteSpace = wrappedLineLength;
 			}
-			console.log({wrappedLineLength, lastWhiteSpace});
+			//console.log({wrappedLineLength, lastWhiteSpace});
 			
 			wrappedLineLength++;
 
@@ -209,23 +281,23 @@ sa</textarea>
 
 				const restOfWord = fullLineWithCursor.substr(fullLineWithCursor.length - wrappedLineLength, wrappedLineLength - lastWhiteSpace);
 
-				console.log('idem pridavat zvysok slova', '`' + restOfWord + '`');
+				//console.log('idem pridavat zvysok slova', '`' + restOfWord + '`');
 				
 
 
 				//potrebujem pridat tolko whitespacov, kolko je v poslednom slove
 				mock.innerHTML = tmpLineWithCursor + restOfWord;
 				const tmpLineWithCursorWithSpaceHeight = mock.offsetHeight;
-				console.log(tmpLineWithCursorWithSpaceHeight,tmpLineWithCursorHeight)
+				//console.log(tmpLineWithCursorWithSpaceHeight,tmpLineWithCursorHeight)
 
 		
 				if(tmpLineWithCursorWithSpaceHeight > tmpLineWithCursorHeight){
-					console.log('este by som nemal wrappovat');					
+					//console.log('este by som nemal wrappovat');					
 
 					// debugger;
 				}else{
-					console.log('wrapujem');
-					console.log({wrappedLineLength});
+					//console.log('wrapujem');
+					//console.log({wrappedLineLength});
 
 					// debugger;
 					
@@ -247,7 +319,7 @@ sa</textarea>
 			mock.innerHTML = valueOfLinesBeforeCursor;
 			const top = (mock.offsetHeight - parseInt(taStyles['padding-bottom']));
 
-			// mock.innerHTML = lineWithCursor;
+			mock.innerHTML = lineWithCursor;
 			const left = (mock.offsetWidth - parseInt(taStyles['padding-right']));
 
 			return {top, left};
@@ -258,7 +330,7 @@ sa</textarea>
 			mock.innerHTML = lineWithCursor.substr(0, lineWithCursor.length - (wrappedLastLineLength + 1));
 			const top = (mock.offsetHeight - parseInt(taStyles['padding-bottom']));
 		
-			// mock.innerHTML = lineWithCursor.substr(-1 * (wrappedLastLineLength - cursorShift));
+			mock.innerHTML = lineWithCursor.substr(-1 * (wrappedLastLineLength - cursorShift));
 			const left = (mock.offsetWidth - parseInt(taStyles['padding-right']));
 		
 			return {top, left};
