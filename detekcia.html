@@ -27,8 +27,6 @@
 			visibility: hidden;
 			display: inline-block;
 		}
-		
-
 	</style>
 </head>
 <body>
@@ -116,7 +114,9 @@
 				
 		if(alt6 && e.key == '4' &&  e.altKey|| e.key == '@' || textarea.value[cursor - 1] === '@'){
 			tagging = true;
-			
+
+			console.log('milosko', textarea.value[cursor - 1], textarea.value[cursor]);
+
 			tagCursor = cursor - 1;
 			token = ''
 
