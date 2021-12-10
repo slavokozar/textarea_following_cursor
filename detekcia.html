@@ -107,7 +107,11 @@
 
 	let lastLength = null;
 
-	let alt6 = false;	
+	let alt6 = false;
+
+	textarea.addEventListener('change', e =>{
+		console.log('milosko2', textarea.value[cursor - 2], textarea.value[cursor - 1], textarea.value[cursor], textarea.value[cursor + 1], textarea.value[cursor + 2]);
+	})	
 
 	textarea.addEventListener('keyup', (e) => {
 		const cursor = getCursor(e.target);
@@ -117,6 +121,10 @@
 
 			console.log('milosko', textarea.value[cursor - 2], textarea.value[cursor - 1], textarea.value[cursor], textarea.value[cursor + 1], textarea.value[cursor + 2]);
 
+			setTimeout(()=>{
+				console.log('milosko1', textarea.value[cursor - 2], textarea.value[cursor - 1], textarea.value[cursor], textarea.value[cursor + 1], textarea.value[cursor + 2]);
+			}, 50)
+			
 			tagCursor = cursor - 1;
 			token = ''
 
