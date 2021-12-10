@@ -131,7 +131,8 @@
 				if(textarea.value[tagCursor] !== '@' && textarea.value[tagCursor + 1] === '@'){
 					tagCursor = tagCursor + 1;
 				}
-				
+
+				showPopup(tagCursor);
 			}, 50)
 
 			showPopup(tagCursor);
@@ -196,6 +197,8 @@
 			popupList(filteredArtists, (artist) => {
 				const firstPart = e.target.value.substr(0, tagCursor + 1);
 				const secondPart = e.target.value.substr(firstSpaceAfterCursor , e.target.value.length - firstSpaceAfterCursor);
+
+				console.log({firstPart, secondPart});
 
 				e.target.value = `${firstPart}${artist.first_name} ${artist.last_name} ${secondPart}`;
 				console.log(`"${firstPart}${artist.first_name} ${artist.last_name} ${secondPart}"`);
