@@ -53,7 +53,7 @@
 <script type="text/javascript" src="artists.js"></script>
 
 <script type="text/javascript">
-	console.log('verzia 9');
+	console.log('verzia 9.1');
 
 	const select = document.querySelector('select');
 	select.append(...artists.map(artist => {
@@ -198,8 +198,16 @@
 			popupList(filteredArtists, (artist) => {
 				console.log(textarea.value)
 				firstSpaceAfterCursor = textarea.value.indexOf(' ', tagCursor)
+
 				const firstPart = textarea.value.substr(0, tagCursor + 1);
-				const secondPart = textarea.value.substr(firstSpaceAfterCursor, textarea.value.length - firstSpaceAfterCursor);
+
+				console.log(firstSpaceAfterCursor < 0 ? tagCursor + 1 : firstSpaceAfterCursor,
+					textarea.value.length - firstSpaceAfterCursor);
+
+				const secondPart = textarea.value.substr(
+					firstSpaceAfterCursor < 0 ? tagCursor + 1 : firstSpaceAfterCursor + 1,
+					textarea.value.length - firstSpaceAfterCursor - 1
+					);
 
 				console.log({firstPart, secondPart});
 
