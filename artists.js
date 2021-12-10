@@ -164,7 +164,7 @@ artists.forEach((artist) => {
 })
 
 function popupListItem(artist, clickCallback){
-	console.log(clickCallback);
+	// console.log(clickCallback);
 
 	const li = document.createElement('li');
 	li.className = 'popup-list__item'; 

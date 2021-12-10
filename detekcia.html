@@ -206,7 +206,7 @@
 			}
 		})
 
-		console.log({taggedArtists});
+		// console.log({taggedArtists});
 		showTaggedOptions();
 
 	})
@@ -236,7 +236,7 @@
 		const options = Array.from(select.querySelectorAll('option'));
 		const taggedArtistIds = taggedArtists.map((artist) => artist.id);
 
-		console.log(taggedArtistIds);
+		// console.log(taggedArtistIds);
 
 		options.forEach((option) => {
 			// console.log(option);
@@ -246,7 +246,7 @@
 	}
 
 	function showPopup(cursor){
-		console.log('showing popup', cursor);
+		// console.log('showing popup', cursor);
 		const coords = getCursorCoords(cursor);
 
 		pointer.style.display = 'block';
