@@ -120,14 +120,19 @@
 		if(alt6 && e.key == '4' &&  e.altKey|| e.key == '@' || textarea.value[cursor - 1] === '@'){
 			tagging = true;
 
+			tagCursor = cursor - 1;
+			token = ''
+
 			console.log('milosko', textarea.value[cursor - 2], textarea.value[cursor - 1], textarea.value[cursor], textarea.value[cursor + 1], textarea.value[cursor + 2]);
 
 			setTimeout(()=>{
 				console.log('milosko1', textarea.value[cursor - 2], textarea.value[cursor - 1], textarea.value[cursor], textarea.value[cursor + 1], textarea.value[cursor + 2]);
-			}, 50)
 
-			tagCursor = cursor - 1;
-			token = ''
+				if(textarea.value[tagCursor] !== '@' && textarea.value[tagCursor + 1] === '@'){
+					tagCursor = tagCursor + 1;
+				}
+				
+			}, 50)
 
 			showPopup(tagCursor);
 		}else if(tagCursor !== null){
