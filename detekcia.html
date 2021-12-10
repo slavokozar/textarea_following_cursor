@@ -191,8 +191,10 @@
 				e.target.setSelectionRange(newCursor, newCursor);
 
 				taggedArtists.push(artist);
-				console.log({taggedArtists});
 				showTaggedOptions();
+
+				tagging = false;
+				hidePopup();
 			});
 		}	
 
