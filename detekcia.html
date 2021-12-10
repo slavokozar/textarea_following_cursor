@@ -53,7 +53,7 @@
 <script type="text/javascript" src="artists.js"></script>
 
 <script type="text/javascript">
-	console.log('verzia 7');
+	console.log('verzia 8');
 
 	const select = document.querySelector('select');
 	select.append(...artists.map(artist => {
@@ -195,17 +195,19 @@
 			}
 					
 			popupList(filteredArtists, (artist) => {
-				const firstPart = e.target.value.substr(0, tagCursor + 1);
-				const secondPart = e.target.value.substr(firstSpaceAfterCursor , e.target.value.length - firstSpaceAfterCursor);
+				console.log(textarea.value)
+				const firstPart = textarea.value.substr(0, tagCursor + 1);
+				const secondPart = textarea.value.substr(firstSpaceAfterCursor , textarea.value.length - firstSpaceAfterCursor);
 
 				console.log({firstPart, secondPart});
 
 				e.target.value = `${firstPart}${artist.first_name} ${artist.last_name} ${secondPart}`;
+
 				console.log(`"${firstPart}${artist.first_name} ${artist.last_name} ${secondPart}"`);
 
 				const newCursor = tagCursor + 1 + artist.first_name.length + artist.last_name.length + 2;
-				e.target.focus();
-				e.target.setSelectionRange(newCursor, newCursor);
+				textarea.focus();
+				textarea.setSelectionRange(newCursor, newCursor);
 
 				taggedArtists.push(artist);
 				showTaggedOptions();
