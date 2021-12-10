@@ -115,7 +115,7 @@
 		if(alt6 && e.key == '4' &&  e.altKey|| e.key == '@' || textarea.value[cursor - 1] === '@'){
 			tagging = true;
 
-			console.log('milosko', textarea.value[cursor - 1], textarea.value[cursor]);
+			console.log('milosko', textarea.value[cursor - 2], textarea.value[cursor - 1], textarea.value[cursor], textarea.value[cursor + 1], textarea.value[cursor + 2]);
 
 			tagCursor = cursor - 1;
 			token = ''
