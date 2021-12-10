@@ -23,8 +23,8 @@
 		span.mock {
 			position: absolute;
 			top:  0;
-			left:  600px;
-			/*visibility: hidden;*/
+			left:  0;
+			visibility: hidden;
 			display: inline-block;
 		}
 		
@@ -32,20 +32,45 @@
 	</style>
 </head>
 <body>
-	<h1>Textarea test</h1>
-	<main>
-		<textarea rows="10" cols="60">Joujou asd asd asd asd asd asd</textarea>
-		<span class="pointer"></span>
-		<span class="mock"></span>
-	</main>
-	<div>Tu je dalsi obsah</div>
+	<div style="display: flex; flex-direction: row">
+		<div style="width: 50%">
+			<h1>Textarea test</h1>
+			<main>
+				<textarea rows="10" cols="40">Joujou asd asd asd asd asd asd</textarea>
+				<span class="pointer"></span>
+				<span class="mock"></span>
+			</main>
+			<h2>Oznaceni umelci</h2>
+			<select multiple>
+				
+			</select>
+		</div>
+		<div style="width: 50%">
+			<h2>Artists</h2>
+
+			<ul class="popup-list"></ul>
+		</div>
+	</div>
+	
+<script type="text/javascript" src="artists.js"></script>
 
 <script type="text/javascript">
 	console.log('verzia 4');
+
+	const select = document.querySelector('select');
+	select.append(...artists.map(artist => {
+		const option = document.createElement('option');
+		option.value = artist.id;
+		option.innerHTML = `${artist.first_name} ${artist.last_name}`;
+		
+		return option;
+	}))
+
 	const textarea = document.querySelector('textarea');
 	const pointer = document.querySelector('span.pointer');
 	const mock = document.querySelector('span.mock');
 
+	const list = document.querySelector('.popup-list');
 
 	// initialize so the mock looks same way as real textarea
 	const taStyles = getComputedStyle(textarea);
@@ -73,6 +98,7 @@
 	let tagCursor = null;
 	let token = null;
 
+	let taggedArtists = [];
 
 	/* 
 		ked napisem zavinac - otvori sa popup
@@ -86,83 +112,104 @@
 	let alt6 = false;	
 
 	textarea.addEventListener('keyup', (e) => {
-
-
-	
-			const cursor = getCursor(e.target);
-			
-			console.log('keyup', e);
-			
-			console.log('keyup2', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
-
-
-
-			
-			if(alt6 && e.key == '4' &&  e.altKey|| e.key == '@' || textarea.value[cursor - 1] === '@'){
-				tagging = true;
+		const cursor = getCursor(e.target);
 				
-				tagCursor = cursor - 1;
-				token = ''
+		if(alt6 && e.key == '4' &&  e.altKey|| e.key == '@' || textarea.value[cursor - 1] === '@'){
+			tagging = true;
+			
+			tagCursor = cursor - 1;
+			token = ''
 
-				console.log('keyup3', {cursor, tagCursor, tagChar: e.target.value[tagCursor], char: e.target.value[cursor - 1]});
+			showPopup(tagCursor);
+		}else if(tagCursor !== null){
 
-				showPopup(tagCursor);
-			}else if(tagCursor !== null){
+			if( e.target.value[tagCursor] !== '@'){
+				const offset = e.target.value.length - lastLength;
 
-				if( e.target.value[tagCursor] !== '@'){
-					console.log('poloha zavinaca sa zmenila');
-					console.log([e.target.value[tagCursor - 2], e.target.value[tagCursor - 1], e.target.value[tagCursor], e.target.value[tagCursor + 1], e.target.value[tagCursor + 2]].join());
+			
+				if(tagCursor > 0 && e.target.value[tagCursor - offset] === '@'){
+					tagCursor-= offset;
+					if(tagging) showPopup(tagCursor);
 
-
-					const offset = e.target.value.length - lastLength;
-
-					console.log({offset});
-					if(tagCursor > 0 && e.target.value[tagCursor - offset] === '@'){
-						console.log('nieco sme pred zavinacom zmazali')
-						tagCursor-= offset;
-						if(tagging) showPopup(tagCursor);
-						// showPopup(tagCursor);
-
-					}else if(tagCursor <= e.target.value.length - offset && e.target.value[tagCursor + offset] === '@'){
-						console.log('nieco sme pred zavinacom pridali')
-						tagCursor+= offset;	
-						if(tagging) showPopup(tagCursor);
-						// tagging = true;
-						// showPopup(tagCursor);
-					}else {
-						tagCursor = null;
-						tagging = false;
-						hidePopup();
-					}
-				}
-
-				const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
-
-				if(	tagging && (firstSpaceAfterCursor >= 0 && cursor >= firstSpaceAfterCursor) || cursor <= tagCursor){
+				}else if(tagCursor <= e.target.value.length - offset && e.target.value[tagCursor + offset] === '@'){
+					tagCursor+= offset;	
+					if(tagging) showPopup(tagCursor);
+					
+				}else {
+					tagCursor = null;
 					tagging = false;
-					hidePopup();	
-				}
-
-				if(!tagging && cursor > tagCursor && (firstSpaceAfterCursor < 0 || (firstSpaceAfterCursor >= 0 && cursor <= firstSpaceAfterCursor))){
-					tagging = true;
-					showPopup(tagCursor);
-				}
-
-				if(firstSpaceAfterCursor >= 0){
-					token = e.target.value.substr(tagCursor + 1, firstSpaceAfterCursor - tagCursor);	
-				}else{
-					token = e.target.value.substr(tagCursor + 1);	
+					hidePopup();
 				}
 			}
 
+			const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
 
-			console.log('after', {cursor, tagCursor, char: e.target.value[tagCursor], key: e.key});
+			if(	tagging && (firstSpaceAfterCursor >= 0 && cursor >= firstSpaceAfterCursor) || cursor <= tagCursor){
+				tagging = false;
+				hidePopup();	
+			}
 
-			lastLength = e.target.value.length;
-	
-			alt6 = e.key == '6' &&  e.altKey;
-		
+			if(!tagging && cursor > tagCursor && (firstSpaceAfterCursor < 0 || (firstSpaceAfterCursor >= 0 && cursor <= firstSpaceAfterCursor))){
+				tagging = true;
+				showPopup(tagCursor);
+			}
+
+			if(firstSpaceAfterCursor >= 0){
+				token = e.target.value.substr(tagCursor + 1, firstSpaceAfterCursor - tagCursor - 1);	
+			}else{
+				token = e.target.value.substr(tagCursor + 1);	
+			}
+		}
+
+		lastLength = e.target.value.length;
+
+		alt6 = e.key == '6' &&  e.altKey;
+
+		if(tagging){
+			const searchToken = removeDiacritics(token).toLowerCase()
+			let firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor)
+			if(firstSpaceAfterCursor < 0) firstSpaceAfterCursor = cursor; 
+
+			let filteredArtists = artists.filter((artist) => (!taggedArtists.includes(artist)))
+
+			if(searchToken.length > 0){
+				filteredArtists = filteredArtists.filter((artist) => (
+					artist.normalized_first_name.indexOf(searchToken) >= 0
+					|| artist.normalized_last_name.indexOf(searchToken) >= 0
+				));
+			}
+					
+			popupList(filteredArtists, (artist) => {
+				const firstPart = e.target.value.substr(0, tagCursor + 1);
+				const secondPart = e.target.value.substr(firstSpaceAfterCursor , e.target.value.length - firstSpaceAfterCursor);
+
+				e.target.value = `${firstPart}${artist.first_name} ${artist.last_name} ${secondPart}`;
+				console.log(`"${firstPart}${artist.first_name} ${artist.last_name} ${secondPart}"`);
+
+				const newCursor = tagCursor + 1 + artist.first_name.length + artist.last_name.length + 2;
+				e.target.focus();
+				e.target.setSelectionRange(newCursor, newCursor);
+
+				taggedArtists.push(artist);
+				console.log({taggedArtists});
+				showTaggedOptions();
+			});
+		}	
+
+
+		taggedArtists.forEach((artist, i) => {
+			const artistTagged = e.target.value.indexOf(`@${artist.first_name} ${artist.last_name}`) >= 0
+			if(!artistTagged){
+				taggedArtists = taggedArtists.filter((a,j) => i !== j);
+			}
+		})
+
+		console.log({taggedArtists});
+		showTaggedOptions();
+
 	})
+
+
 
 	textarea.addEventListener('click', (e) => {
 		if(tagCursor === null) return;
@@ -170,7 +217,7 @@
 		const cursor = getCursor(e.target);
 		const firstSpaceAfterCursor = e.target.value.indexOf(' ', tagCursor);
 
-		console.log('click', {tagCursor, cursor, firstSpaceAfterCursor});
+		// console.log('click', {tagCursor, cursor, firstSpaceAfterCursor});
 
 		if (cursor < tagCursor || (firstSpaceAfterCursor >= 0 && cursor > firstSpaceAfterCursor)){
 			hidePopup();
@@ -179,7 +226,22 @@
 			tagging = false;
 			showPopup(tagCursor);
 		}
+
+		console.log({token});
 	})
+
+	function showTaggedOptions(){
+		const options = Array.from(select.querySelectorAll('option'));
+		const taggedArtistIds = taggedArtists.map((artist) => artist.id);
+
+		console.log(taggedArtistIds);
+
+		options.forEach((option) => {
+			// console.log(option);
+			// console.log(taggedArtistIds, option.value, taggedArtistIds.includes(parseInt(option.value)));
+			option.selected = taggedArtistIds.includes(parseInt(option.value));
+		})
+	}
 
 	function showPopup(cursor){
 		console.log('showing popup', cursor);
